@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/common.js"></script>
+    <link href="/static/css/common.css" rel="stylesheet">
+    <title>通知</title>
+    <style>
+        label {
+            display: inline-block;
+            width: 3rem;
+        }
+
+        input, textarea {
+            display: inline-block;
+            width: 14rem;
+            outline: none;
+            border-width: 0;
+            background-color: #fff0;
+            border-bottom-width: 1px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        a {
+            color: inherit;
+            display: inline-block;
+        }
+
+        .float-bt-img {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        button {
+            border: none;
+        }
+
+        button img {
+            margin-top: 0.9rem;
+        }
+
+        .blank {
+            left: 50%;
+            top: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <navi :number="noticeCount"></navi>
+    <h2>通知</h2>
+    <div class="flex_container">
+        <div class="blank" :class="[notices.length===0 ? 'block' : 'hidden']">没有通知</div>
+        <div v-for="(notice,index) in notices" class="card" :id="'notice-'+index">
+            <p><label>来源</label><input class="show-item" type="text" v-model="notice.app" readonly></p>
+            <p><label>标题</label><input class="show-item" type="text" v-model="notice.title" readonly></p>
+            <p><label>内容</label><textarea rows="3" class="show-item" v-model="notice.body" readonly></textarea></p>
+            <p><label>链接</label><a class="show-item" :href="notice.link">{{shortenUrl(notice.link)}}</a></p>
+        </div>
+        <button class="float-bt" @click.prevent="markAll">
+            <img class="float-bt-img" src="/static/img/marked.png" alt="">
+        </button>
+    </div>
+</div>
+<script>
+    const vm = Vue.createApp({
+        mixins: [globalMixin],
+        data() {
+            return {
+                notices: [],
+            }
+        },
+        mounted() {
+            axios.get('/api/web/notice').then(res => {
+                this.notices = res.data
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        methods: {
+            shortenUrl(url) {
+                len = url.length
+                if (url.length > 27) {
+                    return '...' + url.substr(len - 24, len)
+                } else {
+                    return url
+                }
+            },
+            markAll() {
+                if (this.notices.length === 0) {
+                    alert('没有未读通知！')
+                    return
+                }
+                const params = new URLSearchParams();
+                params.append('action', "marked");
+                axios.post("/api/web/notice", params).then(res => {
+                    this.notices = []
+                    alert("通知全部已读！")
+                }).catch(err => {
+                    console.log(err)
+                })
+            },
+            blankClass() {
+                return "red"
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

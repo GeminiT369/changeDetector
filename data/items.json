@@ -1,0 +1,102 @@
+[
+  {
+    "name": "AVNC",
+    "type": "f-droid.org",
+    "url": "https://f-droid.org/en/packages/com.gaurav.avnc/"
+  },
+  {
+    "name": "Termux",
+    "type": "f-droid.org",
+    "url": "https://f-droid.org/en/packages/com.termux/"
+  },
+  {
+    "name": "阅读",
+    "type": "github.com",
+    "url": "https://github.com/gedoor/legado/releases"
+  },
+  {
+    "name": "图库",
+    "type": "github.com",
+    "url": "https://github.com/WSTxda/QP-Gallery-Releases/releases"
+  },
+  {
+    "name": "SagerNet",
+    "type": "github.com",
+    "url": "https://github.com/SagerNet/SagerNet/releases"
+  },
+  {
+    "name": "Markor",
+    "type": "github.com",
+    "url": "https://github.com/gsantner/markor/releases"
+  },
+  {
+    "name": "Kiwi",
+    "type": "apkcombo.com",
+    "url": "https://apkcombo.com/kiwi-browser-fast-quiet/com.kiwibrowser.browser/"
+  },
+  {
+    "name": "Plus",
+    "type": "apkcombo.com",
+    "url": "https://apkcombo.com/plus-messenger/org.telegram.plus/"
+  },
+  {
+    "name": "Outlook",
+    "type": "apkcombo.com",
+    "url": "https://apkcombo.com/microsoft-outlook/com.microsoft.office.outlook/"
+  },
+  {
+    "name": "VIRTUES",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/v-i-r-t-u-e-s/"
+  },
+  {
+    "name": "Eternum",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/eternum/"
+  },
+  {
+    "name": "Waifu Academy",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/waifu-academy/"
+  },
+  {
+    "name": "Oh Daddy",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/oh-daddy/"
+  },
+  {
+    "name": "Ripples",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/ripples/"
+  },
+  {
+    "name": "Pale Carnations",
+    "type": "dikgames.com",
+    "url": "https://dikgames.com/pale-carnations/"
+  },
+  {
+    "name": "过期米线喵",
+    "type": "mrcong.com",
+    "url": "https://mrcong.com/tag/%E8%BF%87%E6%9C%9F%E7%B1%B3%E7%BA%BF%E7%BA%BF%E5%96%B5/"
+  },
+  {
+    "name": "周叽是可爱兔兔",
+    "type": "mrcong.com",
+    "url": "https://mrcong.com/tag/%E5%91%A8%E5%8F%BD%E6%98%AF%E5%8F%AF%E7%88%B1%E5%85%94%E5%85%94/"
+  },
+  {
+    "name": "桜井宁宁",
+    "type": "mrcong.com",
+    "url": "https://mrcong.com/tag/%E6%A1%9C%E4%BA%95%E5%AE%81%E5%AE%81/"
+  },
+  {
+    "name": "桜桃喵",
+    "type": "mrcong.com",
+    "url": "https://mrcong.com/tag/%E6%A1%9C%E6%A1%83%E5%96%B5/"
+  },
+  {
+    "name": "王心怡",
+    "type": "mrcong.com",
+    "url": "https://mrcong.com/tag/wang-xinyi/"
+  }
+]

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/common.js"></script>
+    <link href="/static/css/common.css" rel="stylesheet">
+    <style>
+        label {
+            display: inline-block;
+            width: 3rem;
+            padding-left: 1rem;
+        }
+
+        input {
+            display: inline-block;
+            width: 12rem;
+            outline: none;
+            border-width: 0;
+            background-color: #fff0;
+        }
+
+        select {
+            width: 12rem;
+            outline: none;
+            border-width: 0;
+            background: none;
+        }
+
+        #selRule {
+            width: 16rem;
+            outline: none;
+            border-width: 0;
+            background: none;
+            margin-left: 1rem;
+            height: 1.5rem;
+            border-bottom-width: 1px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .add-box {
+            position: fixed;
+            width: 18rem;
+            z-index: 9999;
+            display: none;
+            left: 50%;
+            margin-left: -10rem;
+            margin-top: 3rem;
+            padding: 1rem;
+            background-color: #fffe;
+        }
+
+        .add-item {
+            width: 16rem;
+            height: 1.5rem;
+            margin-left: 1rem;
+            border-bottom-width: 1px;
+        }
+
+        .right-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            padding-top: 0.3rem;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        option {
+            padding: 0.5rem;
+        }
+
+        #add-item-box {
+            z-index: 8000;
+        }
+
+
+        .edit-bar {
+            visibility: hidden;
+        }
+
+        .url {
+            color: inherit;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        #nav-notice {
+            background-image: url("/static/img/notice.png");
+        }
+
+    </style>
+    <title>主页</title>
+</head>
+<body>
+
+<div id="app">
+    <navi :number="noticeCount"></navi>
+    <h2>追踪列表</h2>
+    <div class="flex_container">
+        <div id="mask" @touchmove.stop.prevent></div>
+        <div class="add-box card" id="add-rule-box">
+            <form v-on:submit.prevent="addNewRule">
+                <p><label>名称</label><br/><input class="add-item" type="text" v-model="newRuleName" required></p>
+                <p><label>MD5</label><br/><input class="add-item" type="text" v-model="newRuleMd5" required></p>
+                <p><label>标题</label><br/><input class="add-item" type="text" v-model="newRuleTitle" required></p>
+                <p><label>内容</label><br/><input class="add-item" type="text" v-model="newRuleBody" required></p>
+                <p><label>链接</label><br/><input class="add-item" type="text" v-model="newRuleLink" required></p>
+                <div class="flex_container">
+                    <button class="radius-btn">
+                        <img class="radius-btn-img" src="/static/img/save.png" alt="">
+                    </button>
+                    <button class="radius-btn" @click.prevent="closeAddRuleBox">
+                        <img class="radius-btn-img" src="/static/img/cancel.png" alt="">
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="add-box card" id="add-item-box">
+            <form v-on:submit.prevent="addNewItem">
+                <p><label>名称</label><br/><input class="add-item" type="text" v-model="newItemName" required></p>
+                <label for="selRule">规则</label><br/>
+                <select id="selRule" v-model="newItemRule" required>
+                    <option v-for="rule in rules" :value="rule.name">{{rule.name}}</option>
+                    <option value="__add_new_rule__" class="center">--------添加规则--------</option>
+                </select>
+                <p>
+                    <label><a class="url" :href="newItemUrl">URL</a></label><br/>
+                    <input class="add-item" type="text" v-model="newItemUrl" required>
+                </p>
+                <div class="flex_container">
+                    <button class="radius-btn">
+                        <img class="radius-btn-img" src="/static/img/save.png" alt="">
+                    </button>
+                    <button class="radius-btn" @click.prevent="closeAddItemBox">
+                        <img class="radius-btn-img" src="/static/img/cancel.png" alt="">
+                    </button>
+                </div>
+
+            </form>
+        </div>
+        <div v-for="(item,index) in items" class="card" :id="'item-'+index">
+            <p><label>名称</label><input type="text" :value="item.name" readonly></p>
+            <p>
+                <label>规则</label>
+                <select :value="item.type" style="pointer-events: none;">
+                    <option v-for="rule in rules" :value="rule.name">{{rule.name}}</option>
+                </select>
+            </p>
+            <p><label><a class="url" :href="item.url">URL</a></label><input type="text" :value="item.url" readonly></p>
+            <p><label>MD5</label><input type="text" :value="item.md5" readonly></p>
+            <p><label>更新</label><input type="text" :value="getDateDiff(item.UpdatedAt)" readonly></p>
+            <div class="flex_container edit-bar">
+                <button class="radius-btn" @click="deleteItem(index)">
+                    <img class="radius-btn-img" src="/static/img/delete.png" alt="">
+                </button>
+                <button class="radius-btn" @click.prevent="saveItem(index)">
+                    <img class="radius-btn-img" src="/static/img/save.png" alt="">
+                </button>
+                <button class="radius-btn" @click.prevent="cancelEdit(index)">
+                    <img class="radius-btn-img" src="/static/img/cancel.png" alt="">
+                </button>
+            </div>
+            <button class="radius-btn right-btn" @click.prevent="editItem(index)">
+                <img class="radius-btn-img" src="/static/img/edit.png" alt="">
+            </button>
+        </div>
+        <input type="button" value="+" class="float-bt" @click.prevent="showAddItemBox">
+
+    </div>
+</div>
+
+<script>
+
+    const vm = Vue.createApp({
+        mixins: [globalMixin],
+        data() {
+            return {
+                items: [],
+                rules: [],
+                newItemUrl: '',
+                newItemName: '',
+                newItemRule: '',
+                newRuleName: '',
+                newRuleMd5: '',
+                newRuleTitle: '',
+                newRuleBody: '',
+                newRuleLink: '',
+            }
+        },
+        mounted() {
+            axios.get('/api/web/rule').then(response => {
+                this.rules = response.data;
+            }).catch(error => {
+                console.log(error);
+            });
+            axios.get("/api/web/item").then(response => {
+                this.items = response.data
+            }).catch(error => {
+                console.log(error)
+            });
+
+        },
+        methods: {
+            cancelEdit(index) {
+                const card = document.getElementById('item-' + index);
+                card.getElementsByClassName('edit-bar')[0].style.visibility = 'hidden';
+                const list = card.getElementsByTagName('input');
+                card.getElementsByTagName('select')[0].style = "pointer-events: none;";
+                for (let i = 0; i < 2; i++) {
+                    list[i].readOnly = true;
+                    list[i].className = 'read-only';
+                }
+            },
+            editItem(index) {
+                const card = document.getElementById('item-' + index);
+                if (card.getElementsByClassName('edit-bar')[0].style.visibility === "visible") {
+                    this.cancelEdit(index);
+                    return
+                }
+                card.getElementsByClassName('edit-bar')[0].style.visibility = 'visible';
+                const list = card.getElementsByTagName('input');
+                card.getElementsByTagName('select')[0].style = "pointer-events: auto;border-bottom-width: 1px;";
+                for (let i = 0; i < 2; i++) {
+                    list[i].readOnly = false;
+                    list[i].className = 'edit-item';
+                }
+            },
+            saveItem(index) {
+                const card = document.getElementById('item-' + index);
+                const list = card.getElementsByTagName('input');
+                const data = this.items[index];
+                data.name = list[0].value;
+                data.type = card.getElementsByTagName('select')[0].value;
+                data.url = list[1].value;
+                axios.post("/updItem", data).then(response => {
+                    alert("更新" + data.name + "成功！");
+                }).catch(error => {
+                    alert("更新" + data.name + "失败：" + error.response.data.message);
+                });
+                this.cancelEdit(index);
+            },
+            showAddItemBox() {
+                document.getElementById('mask').style.display = 'block';
+                document.getElementById('add-item-box').style.display = 'block';
+            },
+            closeAddItemBox() {
+                document.getElementById('mask').style.display = 'none';
+                document.getElementById('add-item-box').style.display = 'none';
+            },
+            addNewItem() {
+                const data = {
+                    name: this.newItemName,
+                    type: this.newItemRule,
+                    url: this.newItemUrl
+                }
+                this.items.push(data);
+                this.newItemName = '';
+                this.newItemRule = '';
+                this.newItemUrl = '';
+
+                document.getElementById('add-item-box').style.display = 'none';
+                axios.post("/addItem", data).then(response => {
+                    alert("添加" + data.name + "成功！");
+                }).catch(error => {
+                    alert("添加" + data.name + "失败：" + error);
+                });
+            },
+            deleteItem(index) {
+                axios.post("/delItem", {
+                    id: this.items[index].ID
+                }).then(response => {
+                    alert("删除" + this.items[index].name + "成功！");
+                    this.items.splice(index, 1);
+                }).catch(error => {
+                    alert("删除" + this.items[index].name + "失败：" + error);
+                });
+            },
+            addNewRule() {
+                const data = {
+                    name: this.newRuleName,
+                    md5: this.newRuleMd5,
+                    title: this.newRuleTitle,
+                    body: this.newRuleBody,
+                    link: this.newRuleLink
+                }
+                this.rules.push(data);
+                this.newItemRule = this.newRuleName;
+                this.newRuleName = '';
+                this.newRuleMd5 = '';
+                this.newRuleTitle = '';
+                this.newRuleBody = '';
+                this.newRuleLink = '';
+                document.getElementById('add-rule-box').style.display = 'none';
+
+                axios.post("/addRule", data).then(response => {
+                    alert("添加" + data.name + "成功！");
+                }).catch(error => {
+                    alert("添加" + data.name + "失败：" + error);
+                });
+            },
+            closeAddRuleBox() {
+                document.getElementById('add-rule-box').style.display = 'none';
+            },
+            getDateDiff(dateString) {
+                const dateTimeStamp = new Date(dateString).getTime();
+                var minute = 1000 * 60;
+                var hour = minute * 60;
+                var day = hour * 24;
+                var halfamonth = day * 15;
+                var month = day * 30;
+                var now = new Date().getTime();
+                var diffValue = now - dateTimeStamp;
+                if (diffValue < 0) {
+                    return;
+                }
+                var monthC = diffValue / month;
+                var weekC = diffValue / (7 * day);
+                var dayC = diffValue / day;
+                var hourC = diffValue / hour;
+                var minC = diffValue / minute;
+                var result = "";
+                if (monthC >= 1) {
+                    result = "" + parseInt(monthC) + "月前";
+                } else if (weekC >= 1) {
+                    result = "" + parseInt(weekC) + "周前";
+                } else if (dayC >= 1) {
+                    result = "" + parseInt(dayC) + "天前";
+                } else if (hourC >= 1) {
+                    result = "" + parseInt(hourC) + "小时前";
+                } else if (minC >= 1) {
+                    result = "" + parseInt(minC) + "分钟前";
+                } else
+                    result = "刚刚";
+                return result;
+            }
+        },
+        computed: {}
+    }).mount("#app")
+    vm.$watch("newItemRule", function (newVal, oldVal) {
+        if (newVal === '__add_new_rule__') {
+            vm.newItemRule = oldVal;
+            document.getElementById('add-rule-box').style.display = 'block';
+        }
+    })
+</script>
+</body>
+</html>

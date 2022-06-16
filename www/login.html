@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <link href="/static/css/common.css" rel="stylesheet">
+    <title>请登录</title>
+    <style>
+        label {
+            display: inline-block;
+            width: 3rem;
+        }
+
+        input, textarea {
+            display: inline-block;
+            width: 14rem;
+            outline: none;
+            border-width: 0;
+            background-color: #fff0;
+            border-bottom-width: 1px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        #login-box {
+            position: absolute;
+            margin: auto;
+            top: 32%;
+        }
+
+    </style>
+</head>
+<body>
+<h2>登录页</h2>
+<div id="app" class="flex_container">
+    <form id="login-box" class="card" v-on:submit.prevent="login">
+        <p><label>用户</label><input class="edit-item" type="text" v-model="userName" required></p>
+        <p><label>密码</label><input class="edit-item" type="password" v-model="passWord" required></p>
+        <div>
+            <button class="left" @click.prevent="reset">重置</button>
+            <button class="right">登录</button>
+        </div>
+    </form>
+
+</div>
+<script>
+    const vm = Vue.createApp({
+        data() {
+            return {
+                userName: '',
+                passWord: ''
+            }
+        },
+        mounted() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                return
+            }
+            axios.get("/api/web/checkAuth", {
+                headers: {"Authorization": "Bearer " + `${token}`},
+            }).then(response => {
+                console.log("User is authenticated.");
+                window.location.href = "/";
+            }).catch(error => {
+                console.log("User is not authenticated.");
+            });
+        },
+        methods: {
+            login() {
+                axios.post("/api/web/auth", {
+                    username: this.userName,
+                    password: this.passWord,
+                }).then(res => {
+                    console.log(res.data.token)
+                    localStorage.setItem('token', res.data.token);
+                    window.location.href = "/";
+                }).catch(err => {
+                    console.log(err)
+                    alert("用户或密码错误!")
+                })
+            },
+            reset() {
+                this.userName = '';
+                this.passWord = '';
+            },
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

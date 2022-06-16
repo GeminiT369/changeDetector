@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/common.js"></script>
+    <link href="/static/css/common.css" rel="stylesheet">
+    <title>设置</title>
+    <style>
+
+        @media screen and (min-width: 700px) {
+            .card {
+                width: 30rem;
+            }
+
+            input {
+                width: 20rem;
+            }
+
+            #menu {
+                padding: 0;
+                width: 32rem;
+            }
+        }
+
+        @media screen and (max-width: 699px) {
+            .card {
+                width: 18rem;
+            }
+
+            input {
+                width: 15rem;
+            }
+
+            #menu {
+                padding: 0;
+                width: 20rem;
+            }
+        }
+
+        label {
+            display: inline-block;
+            width: 6rem;
+            padding-left: 1rem;
+        }
+
+        input {
+            display: inline-block;
+            outline: none;
+            border-width: 0;
+            background-color: #fff0;
+            border-bottom-width: 1px;
+            margin-left: 1rem;
+            height: 2rem;
+            font-size: 1rem;
+        }
+
+        .right-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: 2rem;
+            height: 2rem;
+            padding-top: 0.3rem;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+
+        ._flex_container {
+            display: flex;
+            flex-direction: column;
+            place-content: center;
+            place-items: center;
+        }
+
+        .tab-page {
+            display: none;
+        }
+
+
+        #menu input[type='radio'] {
+            position: absolute;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        #menu label {
+            cursor: pointer;
+            text-align: center;
+            padding: 1rem 0;
+            width: 33.33%;
+        }
+
+        #menu input[type='radio']:checked + label {
+            background: #4CAF50;
+            color: #fff
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <navi :number="noticeCount"></navi>
+    <h2>设置</h2>
+    <div class="_flex_container">
+        <div class="card" id="menu">
+            <input type="radio" name="tab" id="tab01" @click="changeTab(1)" checked/>
+            <label class="tab-item" for="tab01">通知</label>
+            <input type="radio" name="tab" id="tab02" @click="changeTab(2)"/>
+            <label class="tab-item" for="tab02">任务</label>
+            <input type="radio" name="tab" id="tab03" @click="changeTab(3)"/>
+            <label class="tab-item" for="tab03">用户</label>
+        </div>
+
+        <div class="card tab-page" id="tab-1">
+            <form v-on:submit.prevent="updProfile">
+                <p><label>邮箱</label><input class="" type="text" v-model="smtpUser" required></p>
+                <p><label>密码</label><input class="" type="password" v-model="smtpPswd" required></p>
+                <p><label>SMTP主机</label><input class="" type="text" v-model="smtpServer" pattern="[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)+" required></p>
+                <p><label>SMTP端口</label><input class="" type="text" v-model="smtpPort" pattern="\d+" required></p>
+                <button class="right-btn">
+                    <img class="radius-btn-img" src="/static/img/confirm.png" alt="">
+                </button>
+            </form>
+        </div>
+
+        <div class="card tab-page" id="tab-2">
+            <form v-on:submit.prevent="updTask">
+                <p><label>任务名称</label><input class="" type="text" v-model="taskName" required></p>
+                <p><label>CronTime</label><input class="" type="text" v-model="cronTime" pattern="(\d+|\*(/\d+)?)(\s(\d+|\*(/\d+)?)){4}" required></p>
+                <button class="right-btn">
+                    <img class="radius-btn-img" src="/static/img/confirm.png" alt="">
+                </button>
+            </form>
+        </div>
+
+        <div class="card tab-page" id="tab-3">
+            <form v-on:submit.prevent="updUser">
+                <p><label>用户</label><input class="" type="text" v-model="username" required></p>
+                <p><label>原密码</label><input class="" type="password" v-model="password_old" required></p>
+                <p><label>新密码</label><input class="" type="password" v-model="password_new" required></p>
+                <p><label>确认密码</label><input class="" type="password" v-model="password_cfm" required></p>
+                <button class="right-btn">
+                    <img class="radius-btn-img" src="/static/img/confirm.png" alt="">
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    const vm = Vue.createApp({
+        mixins: [globalMixin],
+        data() {
+            return {
+                ID: 0,
+                smtpUser: '',
+                smtpPswd: '',
+                smtpServer: '',
+                smtpPort: '',
+                curTabIndex: 1,
+                username: '',
+                password_old: '',
+                password_new: '',
+                password_cfm: '',
+                taskID: 0,
+                taskName: '',
+                cronTime: '',
+            }
+        },
+        mounted() {
+            axios.get('/api/web/profile').then(res => {
+                const data = res.data
+                this.ID = data.ID;
+                this.smtpUser = data.smtpUser;
+                this.smtpPswd = data.smtpPswd;
+                this.smtpServer = data.smtpServer;
+                this.smtpPort = data.smtpPort;
+            });
+            axios.get('/api/web/task').then(res => {
+                const data = res.data
+                this.taskID = data.ID;
+                this.taskName = data.taskName;
+                this.cronTime = data.cronTime;
+            });
+            document.getElementById('tab-' + this.curTabIndex).style.display = 'block';
+        },
+        methods: {
+            updProfile() {
+                axios.post('/api/web/profile', {
+                    ID: this.ID,
+                    smtpUser: this.smtpUser,
+                    smtpPswd: this.smtpPswd,
+                    smtpServer: this.smtpServer,
+                    smtpPort: this.smtpPort,
+                    cronTime: this.cronTime,
+                }).then(res => {
+                    alert('保存成功')
+                })
+            },
+            updTask() {
+                axios.post('/api/web/task', {
+                    ID: this.taskID,
+                    taskName: this.taskName,
+                    cronTime: this.cronTime,
+                }).then(res => {
+                    alert('保存成功')
+                })
+            },
+            updUser() {
+                if (this.password_new !== this.password_cfm) {
+                    alert('两次密码不一致')
+                    return
+                }
+                const params = new URLSearchParams();
+                params.append('username', this.username);
+                params.append('password_old', this.password_old);
+                params.append('password_new', this.password_new);
+                axios.post('/api/web/user', params).then(res => {
+                    alert('更新用户&密码成功')
+                    localStorage.clear();
+                    window.location.href = "/login";
+                }).catch(err => {
+                    alert(err.response.data.message)
+                })
+            },
+            changeTab(index) {
+                document.getElementById('tab-' + this.curTabIndex).style.display = 'none';
+                document.getElementById('tab-' + index).style.display = 'block';
+                this.curTabIndex = index;
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

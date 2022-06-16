@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/common.js"></script>
+    <link href="/static/css/common.css" rel="stylesheet">
+    <title>规则</title>
+    <style>
+
+        label {
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            padding-right: 0;
+        }
+
+        input {
+            display: inline-block;
+            width: 14rem;
+            outline: none;
+            border-width: 0;
+            background-color: #fff0;
+            height: 1.5rem;
+        }
+
+        button {
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        .right-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            border-radius: 50%;
+            padding-top: 0.3rem;
+            display: inline-block;
+        }
+
+        .left-btn {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .debug-btn {
+            position: absolute;
+            right: 5rem;
+            top: 1rem;
+            border-radius: 50%;
+            padding-top: 0.3rem;
+            display: inline-block;
+        }
+
+        .edit-bar {
+            visibility: hidden;
+        }
+
+        .edit-item {
+            box-sizing: content-box;
+            border-bottom-width: 1px;
+        }
+
+        .add-box {
+            position: fixed;
+            width: 20rem;
+            z-index: 9999;
+            display: none;
+            left: 50%;
+            margin-left: -11rem;
+            margin-top: 5rem;
+            padding: 1rem;
+            background-color: #fffe;
+        }
+
+        .add-box input {
+            width: 16rem;
+        }
+
+        #debug-box {
+            position: fixed;
+            margin: 0 1rem;
+            width: auto;
+            height: auto;
+            background-color: #fffd;
+            z-index: 6000;
+            padding: 1rem;
+            display: none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        #debug-box input {
+            margin: 0 1rem;
+            border-bottom-width: 1px;
+        }
+
+        #debug-box label {
+            margin: 0;
+        }
+
+        #debug-box button {
+            width: 1.5rem;
+            height: 1.5rem;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+        }
+
+        #debug-box .radius-btn-img {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        textarea {
+            display: inline-block;
+            width: 18rem;
+            outline: none;
+            background-color: #fff0;
+            box-sizing: border-box;
+            resize: none;
+            margin-top: 0.5rem;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <navi :number="noticeCount"></navi>
+    <h2>规则</h2>
+    <div class="flex_container">
+        <div id="mask" @touchmove.stop.prevent></div>
+        <div class="add-box card" id="add-rule-box">
+            <form v-on:submit.prevent="addNewRule">
+                <p><label>名称</label><input class="edit-item" type="text" v-model="newRuleName" required></p>
+                <p><label>MD5</label><input class="edit-item" type="text" v-model="newRuleMd5" required></p>
+                <p><label>标题</label><input class="edit-item" type="text" v-model="newRuleTitle" required></p>
+                <p><label>内容</label><input class="edit-item" type="text" v-model="newRuleBody" required></p>
+                <p><label>链接</label><input class="edit-item" type="text" v-model="newRuleLink" required></p>
+                <div class="flex_container">
+                    <button class="radius-btn">
+                        <img class="radius-btn-img" src="/static/img/save.png" alt="">
+                    </button>
+                    <button class="radius-btn" @click.prevent="closeAddRuleBox">
+                        <img class="radius-btn-img" src="/static/img/cancel.png" alt="">
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div v-for="(rule,index) in rules" class="card" :id="'rule-'+index">
+            <p><label>名称</label><input type="text" :value="rule.name" readonly></p>
+            <p><label>MD5</label><input type="text" :value="rule.md5" readonly></p>
+            <p><label>标题</label><input type="text" :value="rule.title" readonly></p>
+            <p><label>内容</label><input type="text" :value="rule.body" readonly></p>
+            <p><label>链接</label><input type="text" :value="rule.link" readonly></p>
+            <div class="flex_container edit-bar">
+                <button class="radius-btn" @click="deleteRule(index)">
+                    <img class="radius-btn-img" src="/static/img/delete.png" alt="">
+                </button>
+                <button class="radius-btn" @click.prevent="saveRule(index)">
+                    <img class="radius-btn-img" src="/static/img/save.png" alt="">
+                </button>
+                <button class="radius-btn" @click.prevent="cancelEdit(index)">
+                    <img class="radius-btn-img" src="/static/img/cancel.png" alt="">
+                </button>
+            </div>
+            <button class="right-btn" @click.prevent="editRule(index)">
+                <img class="radius-btn-img" src="/static/img/edit.png" alt="">
+            </button>
+            <button class="debug-btn" @click.prevent="debug(rule)">
+                <img class="radius-btn-img" src="/static/img/debug.png" alt="">
+            </button>
+        </div>
+        <input type="button" value="+" class="float-bt" @click.prevent="showAddRuleBox">
+        <form id="debug-box" v-on:submit.prevent="start">
+            <h4>调试：{{debugName}}</h4>
+            <div><label>地址</label><input type="text" v-model="debugUrl" required></div>
+            <div>
+                <label>MD5</label><input type="text" :value="ruleMd5" required>
+                <textarea rows="3" class="show-item" v-model="debugMd5" readonly></textarea>
+            </div>
+            <div>
+                <label>标题</label><input type="text" :value="ruleTitle" required>
+                <textarea rows="3" class="show-item" v-model="debugTitle" readonly></textarea>
+            </div>
+            <div>
+                <label>内容</label><input type="text" :value="ruleBody" required>
+                <textarea rows="5" class="show-item" v-model="debugBody" readonly></textarea>
+            </div>
+            <div>
+                <label>链接</label><input type="text" :value="ruleLink">
+                <textarea rows="3" class="show-item" v-model="debugLink" readonly></textarea>
+            </div>
+            <button class="right-btn">
+                <img class="radius-btn-img" src="/static/img/run.png" alt="">
+            </button>
+            <button class="left-btn" @click="closeDebugBox()">
+                <img class="radius-btn-img" src="/static/img/close.png" alt="">
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+
+    const vm = Vue.createApp({
+        mixins: [globalMixin],
+        data() {
+            return {
+                newRuleName: '',
+                newRuleMd5: '',
+                newRuleTitle: '',
+                newRuleBody: '',
+                newRuleLink: '',
+                rules: [],
+                ruleMd5: '',
+                ruleTitle: '',
+                ruleBody: '',
+                ruleLink: '',
+                debugName: '',
+                debugUrl: '',
+                debugMd5: '',
+                debugTitle: '',
+                debugBody: '',
+                debugLink: '',
+            }
+        },
+        mounted() {
+            axios.get("/api/web/rule").then(response => {
+                this.rules = response.data
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+        methods: {
+            editRule(index) {
+                const card = document.getElementById('rule-' + index);
+                if (card.getElementsByClassName('edit-bar')[0].style.visibility === "visible") {
+                    this.cancelEdit(index)
+                    return
+                }
+                card.getElementsByClassName('edit-bar')[0].style.visibility = 'visible';
+                const list = card.getElementsByTagName('input');
+                for (let i = 0; i < list.length; i++) {
+                    list[i].readOnly = false;
+                    list[i].className = 'edit-item';
+                }
+            },
+            cancelEdit(index) {
+                const card = document.getElementById('rule-' + index);
+                card.getElementsByClassName('edit-bar')[0].style.visibility = 'hidden';
+                const list = card.getElementsByTagName('input');
+                for (let i = 0; i < list.length; i++) {
+                    list[i].readOnly = true;
+                    list[i].className = '';
+                }
+            },
+            deleteRule(index) {
+                axios.post("/delRule", {
+                    id: this.rules[index].ID,
+                    name: this.rules[index].name
+                }).then(response => {
+                    alert("删除" + this.rules[index].name + "成功！");
+                    this.rules.splice(index, 1);
+                }).catch(error => {
+                    console.log(error)
+                    alert("删除" + this.rules[index].name + "失败：" + error.response.data.message);
+                });
+            },
+            saveRule(index) {
+                const list = document.getElementById('rule-' + index).getElementsByTagName('input');
+                const data = this.rules[index];
+                data.name = list[0].value;
+                data.md5 = list[1].value;
+                data.title = list[2].value;
+                data.body = list[3].value;
+                data.link = list[4].value;
+                axios.post("/updRule", data).then(response => {
+                    alert("更新" + data.name + "成功！");
+                }).catch(error => {
+                    alert("更新" + data.name + "失败：" + error.response.data.message);
+                });
+                this.cancelEdit(index);
+            },
+            showAddRuleBox() {
+                document.getElementById('mask').style.display = 'block';
+                document.getElementById('add-rule-box').style.display = 'block';
+            },
+            closeAddRuleBox() {
+                document.getElementById('mask').style.display = 'none';
+                document.getElementById('add-rule-box').style.display = 'none';
+            },
+            addNewRule() {
+                const data = {
+                    name: this.newRuleName,
+                    md5: this.newRuleMd5,
+                    title: this.newRuleTitle,
+                    body: this.newRuleBody,
+                    link: this.newRuleLink
+                }
+                this.rules.push(data);
+                this.newRuleName = '';
+                this.newRuleMd5 = '';
+                this.newRuleTitle = '';
+                this.newRuleBody = '';
+                this.newRuleLink = '';
+                document.getElementById('add-rule-box').style.display = 'none';
+
+                axios.post("/addRule", data).then(response => {
+                    alert("添加" + data.name + "成功！");
+                }).catch(error => {
+                    alert("添加" + data.name + "失败：" + error.response.data.message);
+                });
+            },
+            debug(rule) {
+                this.debugName = rule.name;
+                this.ruleMd5 = rule.md5;
+                this.ruleTitle = rule.title;
+                this.ruleBody = rule.body;
+                this.ruleLink = rule.link;
+                this.debugUrl = rule.url;
+                document.getElementById('mask').style.display = 'block';
+                document.getElementById('debug-box').style.display = 'block';
+            },
+            start() {
+                if (this.debugUrl === undefined || this.debugUrl === '') {
+                    alert("请输入测试地址！");
+                    return
+                }
+                console.log(this.debugUrl)
+                axios.get("/api/web/get", {params: {url: this.debugUrl}}).then(response => {
+                    const dom = document.createElement('html');
+                    dom.innerHTML = response.data;
+                    const jqDom = $(dom);
+                    this.debugMd5 = jqDom.find(this.ruleMd5).html();
+                    this.debugTitle = jqDom.find(this.ruleTitle).html().replace(/\n+/, "\n").replace(/\s+/, " ");
+                    this.debugBody = jqDom.find(this.ruleBody).html().replace(/\n+/, "\n").replace(/\s+/, " ");
+                    this.debugLink = this.ruleLink === "" ? this.debugUrl : jqDom.find(this.ruleLink).attr("href");
+                }).catch(error => {
+                    alert("错误：" + error);
+                })
+            },
+            closeDebugBox() {
+                document.getElementById('debug-box').style.display = 'none';
+                document.getElementById('mask').style.display = 'none';
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

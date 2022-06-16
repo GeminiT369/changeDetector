@@ -1,0 +1,37 @@
+[
+  {
+    "name": "github.com",
+    "md5": ".flex-column.flex-md-row:first-child .Link--primary",
+    "title": ".flex-column.flex-md-row:first-child .Link--primary",
+    "body": ".flex-column.flex-md-row:first-child .markdown-body",
+    "link": ".flex-column.flex-md-row:first-child li.Box-row:first-child a"
+  },
+  {
+    "name": "f-droid.org",
+    "md5": "#latest .package-version-header b",
+    "title": "#latest .package-version-header b",
+    "body": "#latest .package-version-requirement",
+    "link": "#latest .package-version-download a:first-child"
+  },
+  {
+    "name": "apkcombo.com",
+    "md5": ".information-table .item:nth-child(1) .value",
+    "title": ".info .version",
+    "body": ".information-table",
+    "link": ".information-table .item:nth-child(1) a"
+  },
+  {
+    "name": "dikgames.com",
+    "md5": ".entry-header .last-updated",
+    "title": "h1.post-title.entry-title",
+    "body": ".elementor-tab-content[data-tab=\"3\"]",
+    "link": ""
+  },
+  {
+    "name": "mrcong.com",
+    "md5": "article:first-child h2 > a",
+    "title": "article:first-child h2 > a",
+    "body": "article:first-child .post-meta",
+    "link": "article:first-child h2 > a"
+  }
+]
