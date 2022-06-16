@@ -1,3 +1,5 @@
 .idea
 node_modules
 output
+config.yaml
+data/*.db

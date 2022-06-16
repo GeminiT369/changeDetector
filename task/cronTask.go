@@ -55,18 +55,18 @@ func checkItem(item *dto.WebItem, rule dto.WebRule, db *gorm.DB) {
 	resp, err := http.Get(item.Url)
 	//resp.Close = true
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		log.Fatalf("Status code error: %d %s", resp.StatusCode, resp.Status)
+		log.Printf("Status code error: %d %s", resp.StatusCode, resp.Status)
 		return
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	md5Text := doc.Find(rule.Md5).Text()

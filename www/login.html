@@ -62,7 +62,7 @@
                 headers: {"Authorization": "Bearer " + `${token}`},
             }).then(response => {
                 console.log("User is authenticated.");
-                window.location.href = "/";
+                // window.location.href = "/";
             }).catch(error => {
                 console.log("User is not authenticated.");
             });

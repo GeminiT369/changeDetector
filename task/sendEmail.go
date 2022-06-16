@@ -14,7 +14,7 @@ import (
 func SendEmail(account, password, server, port string) {
 	db, err := gorm.Open(sqlite.Open(DBPath), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	var notices []dto.Notice
@@ -39,7 +39,7 @@ func SendEmail(account, password, server, port string) {
 	//log.Println(addr, auth, from, to, mailContent)
 	err = smtp.SendMail(addr, auth, from, to, []byte(mailContent))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	//log.Println(mailContent)
