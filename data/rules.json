@@ -33,5 +33,12 @@
     "title": "article:first-child h2 > a",
     "body": "article:first-child .post-meta",
     "link": "article:first-child h2 > a"
+  },
+  {
+    "name": "uptodown.com",
+    "md5": ".detail .version",
+    "title": ".detail .version",
+    "body": ".content tr:nth-child(4),tr:nth-child(7)",
+    "link": "#detail-download-button"
   }
 ]

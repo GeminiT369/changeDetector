@@ -10,6 +10,11 @@
     "url": "https://f-droid.org/en/packages/com.termux/"
   },
   {
+    "name": "AntennaPod",
+    "type": "f-droid.org",
+    "url": "https://f-droid.org/packages/de.danoeh.antennapod/"
+  },
+  {
     "name": "阅读",
     "type": "github.com",
     "url": "https://github.com/gedoor/legado/releases"
@@ -31,18 +36,18 @@
   },
   {
     "name": "Kiwi",
-    "type": "apkcombo.com",
-    "url": "https://apkcombo.com/kiwi-browser-fast-quiet/com.kiwibrowser.browser/"
+    "type": "uptodown.com",
+    "url": "https://kiwi-browser.cn.uptodown.com/android/download"
   },
   {
     "name": "Plus",
-    "type": "apkcombo.com",
-    "url": "https://apkcombo.com/plus-messenger/org.telegram.plus/"
+    "type": "uptodown.com",
+    "url": "https://telegram-plus.cn.uptodown.com/android/download"
   },
   {
     "name": "Outlook",
-    "type": "apkcombo.com",
-    "url": "https://apkcombo.com/microsoft-outlook/com.microsoft.office.outlook/"
+    "type": "uptodown.com",
+    "url": "https://microsoft-outlook.cn.uptodown.com/android/download"
   },
   {
     "name": "VIRTUES",
