@@ -66,7 +66,7 @@ func ruleCRUD(router *gin.RouterGroup, db *gorm.DB) {
 			c.JSON(http.StatusNotAcceptable, gin.H{"message": "Invalid Data"})
 			return
 		}
-		db.Model(&rule).Where("id=?", rule.ID).Updates(rule)
+		db.Model(&rule).Where("id=?", rule.ID).Select("name", "md5", "title", "body", "link").Updates(rule)
 		log.Printf("Update rule: %v", &rule)
 		c.JSON(http.StatusOK, gin.H{"message": "success"})
 	})
